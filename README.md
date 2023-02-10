@@ -1,1 +1,1 @@
-# DotsAndBoxes-RefinforcementLearning
+# Suite Collector
