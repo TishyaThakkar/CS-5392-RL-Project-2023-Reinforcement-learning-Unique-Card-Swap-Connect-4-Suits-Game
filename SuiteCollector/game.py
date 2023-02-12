@@ -25,7 +25,7 @@ class game(gym.Env):
         self.suites = np.array([1,2,3,4])
         
         self.action_space = spaces.Discrete(46)
-        self.observation_space = spaces.Box(low=11, high=44, shape =(18,), dtype=np.float16)
+        self.observation_space = spaces.Box(low=-1, high=44, shape =(18,), dtype=np.float16)
 
         # For each cell populating the valid actions.
         for i in range(0,4):
