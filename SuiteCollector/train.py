@@ -75,7 +75,7 @@ running_reward = 0
 episode_count = 0
 
 # save weights location 
-saved_weights_dir = 'C:/w/ttu/RL/';
+saved_weights_dir = './SuiteCollector/SavedWeights/';
 file_name = 'model'
 file_extension = '.h5'
 saved_weights_location = saved_weights_dir + file_name + file_extension
