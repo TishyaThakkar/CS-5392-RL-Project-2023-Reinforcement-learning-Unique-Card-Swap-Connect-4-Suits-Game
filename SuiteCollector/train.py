@@ -36,13 +36,13 @@ gamma = 0.99
 
 # Epsilon greedy parameter
 min_epsilon = 0.1
-max_epsilon = 0.9
+max_epsilon = 0.7
 epsilon = max_epsilon  # starts with 1 slowly goes down to 0.1
-epsilon_decay_factor = 0.000072
+epsilon_decay_factor = 0.00072
 
 # batch size for training
-batch_size = int(32*6) # Good initial choice
-timesToSample =  int(900/6) # 600 * 32 , Ruffly 64  games out of 100 ?
+batch_size = int(32*32) # Good initial choice
+timesToSample =  int(900/32) # 600 * 32 , Ruffly 64  games out of 100 ?
 
 
 # controlled within the game tbh
@@ -110,7 +110,7 @@ def main():
         if epsilon < 0.11:
             times_epsilon += 1
         
-        if times_epsilon%1 == 0:
+        if times_epsilon%4 == 0:
             times_epsilon = 0
             epsilon = max_epsilon
 
