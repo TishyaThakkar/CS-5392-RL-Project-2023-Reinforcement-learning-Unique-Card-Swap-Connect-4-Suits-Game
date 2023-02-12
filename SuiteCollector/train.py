@@ -36,7 +36,7 @@ gamma = 0.9
 
 # Epsilon greedy parameter
 min_epsilon = 0.01
-max_epsilon = 0.6
+max_epsilon = 0.9
 epsilon = max_epsilon  # slowly goes down to min_epsilon
 epsilon_decay_factor = 0.000099
 
@@ -111,7 +111,7 @@ def main():
         if epsilon < min_epsilon + 0.05:
             times_epsilon += 1
         
-        if times_epsilon%7 == 0:
+        if times_epsilon%4 == 0:
             times_epsilon = 1
             epsilon = max_epsilon
 
