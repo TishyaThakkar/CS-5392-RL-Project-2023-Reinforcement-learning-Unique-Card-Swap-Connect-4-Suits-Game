@@ -111,7 +111,7 @@ def main():
         if epsilon < min_epsilon + 0.05:
             times_epsilon += 1
         
-        if times_epsilon%4 == 0:
+        if times_epsilon%2 == 0:
             times_epsilon = 1
             epsilon = max_epsilon
 
