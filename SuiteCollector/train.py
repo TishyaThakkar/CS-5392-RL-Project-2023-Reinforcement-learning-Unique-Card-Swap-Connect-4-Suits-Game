@@ -32,17 +32,17 @@ DTTM_FORMAT = '%Y%m%d%H%M%S'
 # Configurations for Training
 # Discount factor gamma, High discount factor since rewards
 # appear only in the end.  
-gamma = 0.85
+gamma = 0.9
 
 # Epsilon greedy parameter
-min_epsilon = 0.1
-max_epsilon = 0.7
-epsilon = max_epsilon  # starts with 1 slowly goes down to 0.1
-epsilon_decay_factor = 0.000072
+min_epsilon = 0.15
+max_epsilon = 0.90
+epsilon = max_epsilon  # slowly goes down to min_epsilon
+epsilon_decay_factor = 0.000099
 
 # batch size for training
 batch_size = int(32*32) # Good initial choice
-timesToSample =  int(900/32) # 600 * 32 , Ruffly 64  games out of 100 ?
+timesToSample =  int(500/32) # 600 * 32 , Ruffly 64  games out of 100 ?
 
 
 # controlled within the game tbh
@@ -55,7 +55,7 @@ update_after_games = 100
 update_target_network = 1000
 
 # Good enough
-max_memory_length = update_after_games * 300 * 2
+max_memory_length = update_after_games * 150 * 2
 
 # Using huber loss for stability
 loss_function = keras.losses.Huber()
@@ -94,6 +94,7 @@ def main():
     model = create_q_model(state_shape, total_actions)
     # for the sake of consistency 
     model_target = create_q_model(state_shape, total_actions)
+    model.summary()
 
     if os.path.exists(saved_weights_location):
         model.load_weights(saved_weights_location)
@@ -102,16 +103,16 @@ def main():
 
     # Let the Training Begin
     total_games = 0
-    times_epsilon = 0
+    times_epsilon = 1
     epsilon = max_epsilon
     while True: # Will break when trained.
         
         # Reset Exploration and Exploitation
-        if epsilon < 0.11:
+        if epsilon < min_epsilon + 0.05:
             times_epsilon += 1
         
         if times_epsilon%4 == 0:
-            times_epsilon = 0
+            times_epsilon = 1
             epsilon = max_epsilon
 
         # set running reward = 0
@@ -237,7 +238,7 @@ def main():
             
             # Log details
             print()
-            template = "running reward: {:.2f} at game {} , epsilon = {} , memory = {}"
+            template = "running reward: {:.2f} at game {} , epsilon = {:.3f} , memory = {}"
             print(template.format(running_reward, total_games, epsilon,len(rewards_history)))
             print()
 
@@ -251,12 +252,13 @@ def main():
 
         # Log details
         print()
-        template = "running reward: {:.2f} at game {} , epsilon = {} , memory = {}"
+        template = "running reward: {:.2f} at game {} , epsilon = {:.3f} , memory = {}"
         print(template.format(running_reward, total_games, epsilon,len(rewards_history)))
         print()
 
         #saving the model
-        model.save_weights(saved_weights_dir + file_name + '_' +str(total_games)+ '_' + str(datetime.now().strftime(DTTM_FORMAT)) + file_extension)
+        if total_games%3000 == 0:
+            model.save_weights(saved_weights_dir + file_name + '_' +str(total_games)+ '_' + str(datetime.now().strftime(DTTM_FORMAT)) + file_extension)
         
         # if running reward is 70 or more, with 10% random exploration then its good right ? 
         if running_reward > 70:
@@ -270,11 +272,13 @@ def create_q_model(state_shape, total_actions):
 
     # Hidden layers
     layer1 = layers.Dense(64, activation="relu")(inputs)
-    layer2 = layers.Dense(72, activation="relu")(layer1)
-    layer3 = layers.Dense(64, activation="relu")(layer2)
+    layer2 = layers.Dense(32, activation="relu")(layer1)
+    layer3 = layers.Dense(32, activation="relu")(layer2)
+    layer4 = layers.Dense(32, activation="relu")(layer3)
+    layer5 = layers.Dense(64, activation="relu")(layer4)
 
     # output layer    
-    action = layers.Dense(total_actions, activation="linear")(layer3)
+    action = layers.Dense(total_actions, activation="linear")(layer5)
 
     return keras.Model(inputs=inputs, outputs=action)
 

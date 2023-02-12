@@ -11,7 +11,7 @@ def main():
     env = game()
     for i in range(1):
         #playRandomVsRandomPlapyerTest1(env, 9999, False)
-        playWithAgentModel(env,'C:/w/ttu/RL/model_8000_20230211201405.h5');
+        playWithAgentModel(env,'C:/w/ttu/RL/model_201000_20230212071934.h5');
 
 def playRandomVsRandomPlapyer(env, total, logLevelHigh):
     match = 0
