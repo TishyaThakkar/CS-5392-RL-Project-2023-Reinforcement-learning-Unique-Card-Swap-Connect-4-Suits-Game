@@ -149,6 +149,7 @@ class game(gym.Env):
     def step(self, action):
         # Additional Information        
         info = {}
+        reward = 0
 
         # If more than 1500 turns are played
         # game is considered to be draw
@@ -158,15 +159,18 @@ class game(gym.Env):
         
         # Player/Agents plays a move 
         if(self.board[-2] == -1 and (action < 42 or action > 45)):
-            return self.board, -100, True, info
+            return self.board, -500, True, info
         elif(self.board[-2] == -1 and (action >= 42 and action <= 45) ):
             choosenSuite = (action-42+1)
             if(choosenSuite == self.board[-1]):
                 #print('bad suite')
-                return self.board, -100, True, info
+                return self.board, -500, True, info
             self.board[-2] = choosenSuite
             #print('You picked the Suite: ', choosenSuite)
             info['your_suite'] = choosenSuite
+            # Give first move correct reward of 20, Yay!!!
+            reward = 20
+            
         elif(action >=0 and action <  42):
             #player makes an action
             #check if the action is valid or not
@@ -183,7 +187,7 @@ class game(gym.Env):
                 int(card1 / 10) == opponentSuite or \
                 int(card2 / 10) == opponentSuite
                 ):
-                return self.board, -100, True, info
+                return self.board, -500, True, info
 
             # else action is valid
             # perform the action if valid
@@ -202,9 +206,11 @@ class game(gym.Env):
             won = self.checkIfSuiteWon(self.board[-2])
             if won:
                 #print('Yay!! I won!')
-                return self.board, 100, True, info
+                return self.board, 500, True, info
+            # if not won, but played a correct move set a reward of 1
+            reward  = 1
         elif(self.board[-2] != -1 and action >= 42 ):
-            return self.board, -100, True, info
+            return self.board, -500, True, info
         else:
             print("Unknown Error, action was ", action)
             info['error'] = 'Unknown Error!!! action was , '+ str(action);
@@ -264,14 +270,14 @@ class game(gym.Env):
             # set reward accordingly and return.
             won = self.checkIfSuiteWon(self.board[-1])
             if won:
-                return self.board, -100, True, info
+                return self.board, -500, True, info
 
             
 
         
         # finally
         #self.render()
-        return self.board, 0, False, info 
+        return self.board, reward, False, info 
     
     # Helper method, used to start a game between two
     # Random players

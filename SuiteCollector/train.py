@@ -35,8 +35,8 @@ DTTM_FORMAT = '%Y%m%d%H%M%S'
 gamma = 0.9
 
 # Epsilon greedy parameter
-min_epsilon = 0.15
-max_epsilon = 0.90
+min_epsilon = 0.01
+max_epsilon = 0.6
 epsilon = max_epsilon  # slowly goes down to min_epsilon
 epsilon_decay_factor = 0.000099
 
@@ -111,7 +111,7 @@ def main():
         if epsilon < min_epsilon + 0.05:
             times_epsilon += 1
         
-        if times_epsilon%4 == 0:
+        if times_epsilon%7 == 0:
             times_epsilon = 1
             epsilon = max_epsilon
 
@@ -165,16 +165,13 @@ def main():
                 
                 # Game is now completed. Check if its a good game.
                 isGoodGame = False
-                if episode_reward == 0:
+                if episode_reward == 1:
                     #game is a draw and bad game, we need only 10 of these so lets do this.
                     if np.random.rand(1)[0] <= 0.40:
                         # lucky game will be added.
                         isGoodGame = True
-                elif episode_reward == 100 or episode_reward == -100:
-                    isGoodGame = True
                 else:
-                    print('Something wrong is happening.. check your memory and everything else in between please')
-                    return
+                    isGoodGame = True
                 
                 if isGoodGame:
                     total_games += 1
@@ -261,7 +258,7 @@ def main():
             model.save_weights(saved_weights_dir + file_name + '_' +str(total_games)+ '_' + str(datetime.now().strftime(DTTM_FORMAT)) + file_extension)
         
         # if running reward is 70 or more, with 10% random exploration then its good right ? 
-        if running_reward > 70:
+        if running_reward > 400:
             break
 
 
@@ -271,14 +268,14 @@ def create_q_model(state_shape, total_actions):
     inputs = layers.Input(shape=state_shape)
 
     # Hidden layers
-    layer1 = layers.Dense(64, activation="relu")(inputs)
-    layer2 = layers.Dense(32, activation="relu")(layer1)
-    layer3 = layers.Dense(32, activation="relu")(layer2)
-    layer4 = layers.Dense(32, activation="relu")(layer3)
-    layer5 = layers.Dense(64, activation="relu")(layer4)
+    layer1 = layers.Dense(18, activation="relu")(inputs)
+    layer2 = layers.Dense(36, activation="relu")(layer1)
+    layer3 = layers.Dense(54, activation="relu")(layer2)
+    #layer4 = layers.Dense(47, activation="relu")(layer3)   
+    #layer5 = layers.Dense(10, activation="relu")(layer4)
 
     # output layer    
-    action = layers.Dense(total_actions, activation="linear")(layer5)
+    action = layers.Dense(total_actions, activation="linear")(layer3)
 
     return keras.Model(inputs=inputs, outputs=action)
 
