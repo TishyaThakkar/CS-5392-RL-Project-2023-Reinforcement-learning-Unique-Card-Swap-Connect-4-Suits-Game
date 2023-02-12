@@ -32,13 +32,13 @@ DTTM_FORMAT = '%Y%m%d%H%M%S'
 # Configurations for Training
 # Discount factor gamma, High discount factor since rewards
 # appear only in the end.  
-gamma = 0.99 
+gamma = 0.85
 
 # Epsilon greedy parameter
 min_epsilon = 0.1
 max_epsilon = 0.7
 epsilon = max_epsilon  # starts with 1 slowly goes down to 0.1
-epsilon_decay_factor = 0.00072
+epsilon_decay_factor = 0.000072
 
 # batch size for training
 batch_size = int(32*32) # Good initial choice
