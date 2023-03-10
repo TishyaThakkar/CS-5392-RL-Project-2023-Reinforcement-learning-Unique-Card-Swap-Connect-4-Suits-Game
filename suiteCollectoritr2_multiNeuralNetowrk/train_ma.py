@@ -495,7 +495,7 @@ def create_q_model(state_shape, total_actions):
     inputs = layers.Input(shape=state_shape)
 
     # Hidden layers
-    layer1 = layers.Dense(250, activation="relu")(inputs)
+    layer1 = layers.Dense(500, activation="relu")(inputs)
     layer2 = layers.Dense(250, activation="relu")(layer1)
     #layer3 = layers.Dense(1000, activation="relu")(layer2)
     #layer4 = layers.Dense(45, activation="relu")(layer3)   
