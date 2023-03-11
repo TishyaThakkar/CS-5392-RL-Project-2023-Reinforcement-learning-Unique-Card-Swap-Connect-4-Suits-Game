@@ -10,6 +10,7 @@ import logging
 import sys
 import os.path
 from datetime import datetime
+import json
 DTTM_FORMAT = '%Y%m%d%H%M%S'
 
 
@@ -155,16 +156,24 @@ def main():
         #    times_epsilon = 1
         #    epsilon = max_epsilon
 
+        with open('./taining_control.json', 'r') as file:
+            data = file.read()
+            controls = json.loads(data)
+            if controls["stop_training"] == 1:
+                print('Stopping traning Gracefully...')
+                return;
+
+
         # set running reward = 0
         running_reward = 0
         
-        min_epsilon = np.random.choice([0.0,0.05],1,p=[0.5,0.5])[0]
+        min_epsilon = np.random.choice([0.0,0.05,0.01],1,p=[0.4,0.3,0.3])[0]
 
         # update target model
         tn = int(epsilon_check_after_games/update_after_games)
         for i in range(tn):
             epsilon_target = int(tn - 17)
-            epsilon = (0.7 - (i*0.7/epsilon_target))
+            epsilon = (1.0 - (i*1.0/epsilon_target))
             if(epsilon < 0):
                 epsilon = 0
             good_games = 0
@@ -196,7 +205,8 @@ def main():
                         # Take random action
                         #print('before', len(buffer_done_local))
                         isValidActionTaken = False
-                        while isValidActionTaken == False:
+                        times_to_try = 0
+                        while isValidActionTaken == False and times_to_try < 120:
                             action = np.random.choice(total_actions)
                             isValidActionTaken = env.isValidAction(action)
                             if isValidActionTaken == False:
@@ -205,6 +215,7 @@ def main():
                                 buffer_reward_local.append(-1);
                                 buffer_next_state_local.append(state);
                                 buffer_done_local.append(True); 
+                                times_to_try = times_to_try + 1
                                 #print('during' , len(buffer_done_local))
                         #print('after', len(buffer_done_local))
                             
@@ -217,7 +228,8 @@ def main():
                         # Take best action
                         action = tf.argmax(action_probs[0]).numpy()
                         isValidActionTaken = False
-                        while isValidActionTaken == False:
+                        times_to_try = 0
+                        while isValidActionTaken == False and times_to_try < 120:
                             isValidActionTaken = env.isValidAction(action)
                             if isValidActionTaken == False:
                                 buffer_state_local.append(state);
@@ -227,6 +239,7 @@ def main():
                                 buffer_done_local.append(True); 
                                 # Take a random action
                                 action = np.random.choice(total_actions)
+                                times_to_try = times_to_try + 1
                         
                     
                     # epsilon greedy stuff..
@@ -294,7 +307,7 @@ def main():
                     running_reward = (episode_reward + (good_games-1) * running_reward ) / good_games
                     
                     # logging more data
-                    if(episode_reward == 0 or episode_reward == -0.05):
+                    if(episode_reward == 0 or episode_reward == -0.05 ):
                         total_draws += 1
                     elif(episode_reward == 1):
                         total_wins += 1
@@ -466,7 +479,7 @@ def main():
             template = "running reward: {:.2f} at game {} ({}) , epsilon = {:.3f} , memory = {}, actions = {} , {}"
             template2 = "total_draws: {}, total_wins: {}, total_loss: {}"
             print(template.format(running_reward, total_games, (i+1), epsilon,len(replay_buffer_action), len(buffer_action_ts), datetime.now()))
-            print(template2.format(total_draws,total_wins, total_loss), flush=True)
+            print(template2.format(total_draws,total_wins, total_loss))
             print()
 
             #saving the model
