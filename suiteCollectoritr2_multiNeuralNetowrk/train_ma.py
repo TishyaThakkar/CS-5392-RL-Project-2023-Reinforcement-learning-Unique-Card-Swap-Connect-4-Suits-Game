@@ -294,7 +294,7 @@ def main():
                     running_reward = (episode_reward + (good_games-1) * running_reward ) / good_games
                     
                     # logging more data
-                    if(episode_reward == 0):
+                    if(episode_reward == 0 or episode_reward == -0.05):
                         total_draws += 1
                     elif(episode_reward == 1):
                         total_wins += 1
@@ -305,7 +305,7 @@ def main():
                             print(buffer_reward_local[-1] ,  file=f)
                             print(np.reshape(buffer_next_state_local[-1], (4, 4)) , file=f)
                             print("", file=f)
-                    else:
+                    elif(episode_reward == -1):
                         total_loss += 1
                         with open("./data/lost_moves.txt", "a")  as f:
                             print("", file=f)
