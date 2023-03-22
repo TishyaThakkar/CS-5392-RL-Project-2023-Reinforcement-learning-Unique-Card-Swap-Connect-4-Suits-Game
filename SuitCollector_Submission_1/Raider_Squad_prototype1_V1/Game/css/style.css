@@ -1,0 +1,30 @@
+container {
+    width: 1024px !important;
+    min-width: 1024px !important;
+    overflow-x: scroll;
+}
+
+.img-row {
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap; 
+} 
+
+
+.img-container {
+    width: 110px;   
+    height: 110px;
+    /* flex: 0.05 0 130px; */
+    position: relative;
+    overflow: hidden;
+    border: 5px solid grey;
+    border-radius: 20px;
+    padding: 0px 25px;
+    margin: 5px;
+}
+
+img {
+    width: 100px;
+    height: 100px;
+}
