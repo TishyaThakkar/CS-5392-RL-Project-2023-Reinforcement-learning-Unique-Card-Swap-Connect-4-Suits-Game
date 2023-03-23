@@ -1,28 +1,38 @@
 """
 A Gymnasium Game file for Suit Collector. 
-Game File for Training in Phase II, Iteration 1. 
-For every action performed, The Game in response makes a valid random action for the opponent.
+Game File for Training in Phase II, Iteration 2. 
+For every action performed, The Game in response makes a action from 'Iron' Neural Network Agent or 
+a valid random action for the opponent.
 """
 
 # Standard Imports.
 import random as rd;
 import numpy as np;
 import gymnasium as gym;
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import os.path
+
 from gymnasium import Env, spaces 
+
 
 # Suite Collector Game Class File Inherits from Gymnasium Environment.
 class game(gym.Env):
 
-    def __init__(self):
-        """This constructor sets up the Game Object."""
+    def __init__(self, model_path):
+        """This constructor sets up the Game Object.
+            Arguments:
+                model_path: refers to the path to the weights of Agent Iron.
+        """
         # pieces are represented in phase II format where 
         # positive numbers are of the Agents, negative numbers are the opponent.
         # zero's are indifferent card.
         self.pieces = np.array([1,2,3,4,0,0,0,0,0,0,0,0,-1,-2,-3,-4])
-        
+
         # board is the 4x4 Grid.
         self.board = np.copy(self.pieces)
-        
+
         # Initializing actions Map.
         # actions[i] = [x,y]
         # action i swaps x , y Position on the 4x4 Grid as shown below.
@@ -31,23 +41,40 @@ class game(gym.Env):
         #   4  5  6  7
         #   8  9  10 11
         #   12 13 14 15
+        #populating actions
+        # swap x and y  
         self.actions = np.full([16*8,2], -1)
         #actionsXY[x,y] = i , Swapping X and Y position if action is i
         self.actionsXY = np.full([16,16],-1)
         # Total number of valid actions.
         self.actionsCount = 0
-        
+
         # The suites in the Game in Phase II.
         self.suites = np.array([1,-1])
         
         # populate actions data.
         self.generateActions()
 
+        
+        # Zero computer goes first
+        # 1 is Agent/Player goes first
+        #self.turn = -1
+
         # Max Turns each game before its a draw
-        self.maxTurnsEachGame = 300
+        # Changed to 50 to decrease the noise and too many draw/repeating moves in replay buffer.
+        self.maxTurnsEachGame = 50
         self.action_space = spaces.Discrete(self.actionsCount)
         self.observation_space = spaces.Box(low=-4, high=4, shape =(16,), dtype=np.float16)
 
+        # create Assistant model/ Iron
+        if os.path.exists(model_path):
+            self.model = self.create_q_model(self.observation_space.shape , self.action_space.n)
+            self.model.load_weights(model_path)
+            print('Assistance model is all set.')
+        else:
+            print('Path ', model_path, 'does not exist.')
+            return
+        
         # Initializes the board and everything else.
         self.startGame()
 
@@ -91,8 +118,7 @@ class game(gym.Env):
                 # Left 
                 c,d = i-1,j-1
                 self.processAction(a,b,c,d)
-
-
+    
     def startGame(self):
         """ Initialize a new board """
         # Initialize a random board
@@ -109,7 +135,7 @@ class game(gym.Env):
 
         # time.
         self.time = 0
-
+   
     def isValid(self, x):
         """Checks if a co-ordinate is valid or not
         Arguments:
@@ -124,6 +150,10 @@ class game(gym.Env):
         """ Normalizes the data on the board to values between [-1,1]. """
         return (self.board / 4)
 
+    def normalizeBoardForAssistanceModel(self):
+        """ Normalizes the data on the board to values between [-1,1] for Agent Iron to process. """
+        return (self.board / -4)
+
     def populateAction(self,x,y):
         """ Populate both action Maps with an actionXY Map. 
         Arguments:
@@ -133,7 +163,27 @@ class game(gym.Env):
         self.actions[self.actionsCount, 0] = x
         self.actions[self.actionsCount, 1] = y
         self.actionsCount += 1
+    
+    def isValidAction(self, action):
+        """Checks if a given action is valid for the current board."""
+        if(action >=0 and action <  42):
+                #player makes an action
+                #check if the action is valid or not
+                # an action is valid if it does not swap opponents cards.
+                card1Pos = self.actions[action][0]
+                card2Pos = self.actions[action][1]
 
+                card1 = self.board[card1Pos]
+                card2 = self.board[card2Pos]
+
+                if (
+                    card1 < 0 or \
+                    card2 < 0
+                    ):
+                    return False
+        else:
+            return False 
+        return True
 
     def processAction(self,a,b,c,d):
         """ Processes an action
@@ -150,7 +200,6 @@ class game(gym.Env):
             if(self.actionsXY[x,y] == -1):
                 self.populateAction(x,y)
 
-
     def reset(self):
         """ Rests the board = creates a fresh new game
         Returns:
@@ -158,7 +207,6 @@ class game(gym.Env):
         """
         self.startGame()
         return self.normalizeBoard()
-
 
     def step(self, action):
         """
@@ -184,6 +232,7 @@ class game(gym.Env):
         if(self.time >= self.maxTurnsEachGame):
             done = True
   
+  
         if(action >=0 and action <  42):
             #player makes an action
             #check if the action is valid or not
@@ -194,8 +243,7 @@ class game(gym.Env):
             card1 = self.board[card1Pos]
             card2 = self.board[card2Pos]
 
-            # Invalid action
-            if ( card1 < 0 or  card2 < 0 ):
+            if ( card1 < 0 or card2 < 0):
                 return self.normalizeBoard(), -1, True, info
 
             # else action is valid
@@ -210,11 +258,15 @@ class game(gym.Env):
             if self.board[card2Pos] == 1:
                 self.aces[1] = card2Pos
 
-            # Check if user/agent has won.
+            # Check if you have won.
             # set reward that we need to return.
             won = self.checkIfSuiteWon(1)
             if won:
                 return self.normalizeBoard(), 1, True, info
+            # if not won, but played a move which didn't change the game
+            # board, set a reward of -0.05. Do not Encourage Draws!
+            if self.board[card1Pos] == 0 and self.board[card2Pos] == 0:
+                reward = -0.05
         else:
             print("Unknown Error, action was ", action)
             info['error'] = 'Unknown Error!!! action was , '+ str(action);
@@ -223,24 +275,35 @@ class game(gym.Env):
 
         info['your_action'] = action
 
-        # The Game makes a Valid Random move in return.
-        myaction = 0
+        # The Game makes a move in return.
+        # takes the action from Iron assistance agent,
+        # if its not legal plays a random move. 
+
+        # Predict action Q-values
+        # From environment state
+        state_tensor = tf.convert_to_tensor(self.normalizeBoardForAssistanceModel())
+        state_tensor = tf.expand_dims(state_tensor, 0)
+        action_probs = self.model(state_tensor, training=False)
+        # Take best action
+        myaction = tf.argmax(action_probs[0]).numpy() 
+        #myaction = 0
+        info['assisted_action'] = myaction
         card1Pos = None
         card2Pos = None
-        # Generate a valid action
         while True:
-            myaction = rd.randint(0,41)
+            
             card1Pos = self.actions[myaction][0]
             card2Pos = self.actions[myaction][1]
 
             card1 = self.board[card1Pos]
             card2 = self.board[card2Pos]
 
-            if ( card1 > 0 or card2 > 0 ):
+            if ( card1 > 0 or  card2 > 0):
+                myaction = rd.randint(0,41)
                 continue
             else:
                 break
-        
+            
         # Perform the action
         self.board[card1Pos] = card2
         self.board[card2Pos] = card1
@@ -253,7 +316,7 @@ class game(gym.Env):
         if self.board[card2Pos] == -1:
             self.aces[-1] = card2Pos
 
-        # Check if the Opponent won.
+        # Check if Agent Iron won.
         # set reward accordingly and return.
         won = self.checkIfSuiteWon(-1)
         if won:
@@ -261,8 +324,8 @@ class game(gym.Env):
 
         # finally
         return self.normalizeBoard(), reward, done, info 
-    
-   
+        
+        
     def checkIfSuiteWon(self, suite):
         """ Check if a Suite won the game or not. """
         # get position of ace in suite
@@ -325,14 +388,12 @@ class game(gym.Env):
 
         return False
         
-
     def TestcheckIfSuiteWon(self, board, aces, suite):
         """ Helper method to test if a suite won the game or not """
         self.board = board
         self.aces = aces
         print(self.checkIfSuiteWon(suite))
     
-
     def render(self):
         """ Renders the game on to the Standard Output console """
         print()
@@ -347,8 +408,22 @@ class game(gym.Env):
         #print("normalize board = ", self.normalizeBoard())
         print("time = ", self.time)
 
+    # Network for Agent Iron.
+    def create_q_model(self, state_shape, total_actions):
+        # input layer
+        inputs = layers.Input(shape=state_shape)
+
+        # Hidden layers
+        layer1 = layers.Dense(40, activation="relu")(inputs)
+        layer2 = layers.Dense(40, activation="relu")(layer1)
+
+        # output layer    
+        action = layers.Dense(total_actions, activation="linear")(layer2)
+
+        return keras.Model(inputs=inputs, outputs=action)
+
 def main():
-    env = game()
+    env = game('./assistance_model/model.h5')
     print()
     #env.render()
     print('Number of states: {}'.format(env.observation_space))
@@ -368,6 +443,7 @@ def main():
             print("reward : " , reward, "Your action : ", action , "Computer action : ", info["random_action"])
             print('---------------------------------------------------')
         
+
 
 if __name__ == "__main__":
     main()
