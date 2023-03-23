@@ -438,7 +438,6 @@ NAME:           main
 PARAMETERS:     None
 PURPOSE:        The function serves as the main entry point of the program and runs the game loop where 
                 the user interacts with the game and receives feedback
-PRECONDITION:   The function should be called after initializing the game environment
 POSTCONDITION:  The function runs the game loop and allows the user to interact with the game by entering an 
                 action, rendering the game, and displaying the reward and computer's action. The loop continues 
                 until the game is finished or the user chooses to exit.
