@@ -265,7 +265,7 @@ def q_function(agent_ID, state, action, q_table, gamma, cards_prev=[-1, -1, -1, 
         # Setting agent ID as 1 which is agent has picked the suit, but now we will consider what happens after the agent has picked this
         # suit... The opponent will have 3 choices... Computing the reward for each possible choice the opponent has, and appending those
         # to the list called value_opponent declared above...
-
+        # The value appended in the list is probability * (reward - gamma * reward of the next action)
         reward_previous, reward_index = q_function(agent_ID, state_copy_1, next_action_set[0], q_table, gamma,
                                                    agent_suit_cards)
         value_opponent.append(0.33*(reward - gamma * reward_previous))
