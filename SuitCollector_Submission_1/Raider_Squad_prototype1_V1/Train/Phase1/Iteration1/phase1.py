@@ -340,10 +340,10 @@ def main():
             agent_ID = 0 # This is the agent playing...
             state = board
             # In the code below we are indicating the cards picked by the agent by negative numbers...
-            for i in state:
-                for j in range(len(i)):
-                    if i[j] < 0:
-                        i[j] = i[j] * -1
+            for k in state:
+                for j in range(len(k)):
+                    if k[j] < 0:
+                        k[j] = k[j] * -1
             # print("State in the main function for loop: ", state)
 
             # Calling the q_function function for Q learning process...
