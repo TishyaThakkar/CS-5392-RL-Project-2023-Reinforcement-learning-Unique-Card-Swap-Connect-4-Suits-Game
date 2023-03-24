@@ -268,13 +268,13 @@ def q_function(agent_ID, state, action, q_table, gamma, cards_prev=[-1, -1, -1, 
 
         reward_previous, reward_index = q_function(agent_ID, state_copy_1, next_action_set[0], q_table, gamma,
                                                    agent_suit_cards)
-        value_opponent.append(reward - gamma * reward_previous)
+        value_opponent.append(0.33*(reward - gamma * reward_previous))
         reward_previous, reward_index = q_function(agent_ID, state_copy_2, next_action_set[1], q_table, gamma,
                                                    agent_suit_cards)
-        value_opponent.append(reward - gamma * reward_previous)
+        value_opponent.append(0.33*(reward - gamma * reward_previous))
         reward_previous, reward_index = q_function(agent_ID, state_copy_3, next_action_set[2], q_table, gamma,
                                                    agent_suit_cards)
-        value_opponent.append(reward - gamma * reward_previous)
+        value_opponent.append(0.33*(reward - gamma * reward_previous))
 
         # In the Q learning equations mentioned above, subtracting the rewards gained from the opponent since, the opponents rewards should
         # minimize the chances of the agent to win...
