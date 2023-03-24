@@ -167,14 +167,11 @@ class game(gym.Env):
     """
     NAME:           populateAction
     PARAMETERS:     self; x, y - Co ordinates of a position on the 4x4 Grid.
-    PURPOSE:        The function populates two action maps with a given actionXY map, 
-                    representing the position on a 4x4 grid.
-    PRECONDITION:   The function must be called by an instance of the class containing 
-                    this method. The x and y arguments must be integers representing valid 
-                    coordinates on a 4x4 grid.
-    POSTCONDITION:  The actionXY map is updated with the given x,y coordinates, and the 
-                    actions map is updated with a new entry at the index of actionsCount, 
-                    containing the x and y coordinates. The actionsCount variable is also incremented by 1.
+    PURPOSE:        The function populates two action maps with a given actionXY map, representing the position on a 4x4 grid.
+    PRECONDITION:   The function must be called by an instance of the class containing this method. The x and y arguments must 
+                    be integers representing valid coordinates on a 4x4 grid.
+    POSTCONDITION:  The actionXY map is updated with the given x,y coordinates, and the actions map is updated with a new entry 
+                    at the index of actionsCount, containing the x and y coordinates. The actionsCount variable is also incremented by 1.
     """
     def populateAction(self,x,y):
         self.actionsXY[x,y] = self.actionsCount
@@ -186,14 +183,13 @@ class game(gym.Env):
     """
     NAME:           processAction
     PARAMETERS:     self, a, b, c, d
-    PURPOSE:        The function processes an action by checking if the destination coordinates 
-                    are valid and if the action already exists in the actions map. It also 
-                    populates the actions map with a new action if it doesn't already exist.
-    PRECONDITION:   The function must be called by an instance of the class containing this method. 
-                    The a, b, c, and d arguments must be integers representing valid coordinates on a 4x4 grid.
-    POSTCONDITION:  If the destination coordinates are valid and the action does not already exist in the 
-                    actions map, then a new entry is added to the actions map using the populateAction method. 
-                    If the action already exists in the actions map, then no changes are made to the maps. 
+    PURPOSE:        The function processes an action by checking if the destination coordinates are valid and if the action already 
+                    exists in the actions map. It also populates the actions map with a new action if it doesn't already exist.
+    PRECONDITION:   The function must be called by an instance of the class containing this method. The a, b, c, and d arguments must 
+                    be integers representing valid coordinates on a 4x4 grid.
+    POSTCONDITION:  If the destination coordinates are valid and the action does not already exist in the actions map, then a new 
+                    entry is added to the actions map using the populateAction method. If the action already exists in the actions map, 
+                    then no changes are made to the maps. 
     """
     def processAction(self,a,b,c,d):
         if self.isValid(c) and self.isValid(d):

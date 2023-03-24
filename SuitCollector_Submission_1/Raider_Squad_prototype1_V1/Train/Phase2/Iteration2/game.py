@@ -1,8 +1,11 @@
 """
-A Gymnasium Game file for Suit Collector. 
-Game File for Training in Phase II, Iteration 2. 
-For every action performed, The Game in response makes a action from 'Iron' Neural Network Agent or 
-a valid random action for the opponent.
+AUTHOR:         James, Tishya
+FILENAME:       game.py
+SPECIFICATION:  Game File for Training in Phase II, Iteration 2.
+                This file contains the game class which is an gymnasium environment for the Suit Collector.
+                For every action performed, The Game in response makes a action from 'Iron' Neural Network Agent or 
+                a valid random action for the opponent.
+FOR:            CS 5392 Reinforcement Learning Section 001
 """
 
 # Standard Imports.
@@ -16,10 +19,22 @@ import os.path
 
 from gymnasium import Env, spaces 
 
-
+"""
+NAME:       game
+PURPOSE:    This class is used to create a gymnasium environment for the Suit Collector game.
+"""
 # Suite Collector Game Class File Inherits from Gymnasium Environment.
 class game(gym.Env):
 
+    """
+    NAME:           init
+    PARAMETERS:     self
+    PURPOSE:        This constructor sets up the Game Object with all necessary 
+                    properties and initializes the board.
+    PRECONDITION:   This function should be called to initialize the Game object 
+                    before starting any game.
+    POSTCONDITION:  Game object is initialized.
+    """
     def __init__(self, model_path):
         """This constructor sets up the Game Object.
             Arguments:
@@ -78,8 +93,14 @@ class game(gym.Env):
         # Initializes the board and everything else.
         self.startGame()
 
+    """
+    NAME:           generateActions
+    PARAMETERS:     self
+    PURPOSE:        This function generates the actions and action count.
+    PRECONDITION:   This function should be called while initializing the Game object.
+    POSTCONDITION:  The action space is populated with valid actions
+    """
     def generateActions(self):
-        """ Generate the actions and action count. """
         # For each cell populate the unique valid actions.
         for i in range(0,4):
             for j in range(0,4):
@@ -119,8 +140,17 @@ class game(gym.Env):
                 c,d = i-1,j-1
                 self.processAction(a,b,c,d)
     
+    """
+    NAME:           startGame
+    PARAMETERS:     self
+    PURPOSE:        The function initializes a new board for the game.
+    PRECONDITION:   This function should be called after initializing the Game object.
+    POSTCONDITION:  The function initializes a new random board by shuffling the pieces 
+                    array and copying it to the board array. It tracks the positions of 
+                    Aces in the new board and updates the Aces property. The time 
+                    property is also initialized to 0.
+    """
     def startGame(self):
-        """ Initialize a new board """
         # Initialize a random board
         self.board = np.copy(self.pieces)
         np.random.shuffle(self.board)
@@ -136,24 +166,53 @@ class game(gym.Env):
         # time.
         self.time = 0
    
+    """
+    NAME:           isValid
+    PARAMETERS:     Self; x - an integer representing an X or Y position on the grid
+    PURPOSE:        Checks if a coordinate is valid or not within the 4x4 grid.
+    PRECONDITION:   The input parameter x must be an integer.
+    POSTCONDITION:  Returns True if the input x is within the range of 0 to 3, 
+                    False otherwise. No variables are changed. The function only 
+                    returns a boolean value.
+    """
     def isValid(self, x):
-        """Checks if a co-ordinate is valid or not
-        Arguments:
-        x       -> Integer representing X or Y representing an (X,Y)
-                   Position on the Grid 
-        """
         if x >=0 and x < 4:
             return True
         return False
 
+    """
+    NAME:           normalizeBoard
+    PARAMETERS:     self
+    PURPOSE:        The function normalizes the data on the board to values between [-1,1]
+    PRECONDITION:   The function can be called after the board has been initialized 
+                    with values between 0 and 15.
+    POSTCONDITION:  The function returns a normalized board where all values have been 
+                    divided by 4 to be within the range of [-1,1].
+    """
     def normalizeBoard(self):
-        """ Normalizes the data on the board to values between [-1,1]. """
         return (self.board / 4)
 
+    """
+    NAME:           normalizeBoardForAssistanceModel
+    PARAMETERS:     self
+    PURPOSE:        The function normalizes the values on the game board to a range of [-1,1] to make it suitable 
+                    for processing by the Agent Iron.
+    PRECONDITION:   The function must be called by an instance of the class containing this method.
+    POSTCONDITION:  The values on the game board are divided by -4 to normalize them to a range of [-1,1]. The normalized 
+                    board is then returned as output.
+    """
     def normalizeBoardForAssistanceModel(self):
-        """ Normalizes the data on the board to values between [-1,1] for Agent Iron to process. """
         return (self.board / -4)
 
+    """
+    NAME:           populateAction
+    PARAMETERS:     self; x, y - Co ordinates of a position on the 4x4 Grid.
+    PURPOSE:        The function populates two action maps with a given actionXY map, representing the position on a 4x4 grid.
+    PRECONDITION:   The function must be called by an instance of the class containing this method. The x and y arguments must 
+                    be integers representing valid coordinates on a 4x4 grid.
+    POSTCONDITION:  The actionXY map is updated with the given x,y coordinates, and the actions map is updated with a new entry 
+                    at the index of actionsCount, containing the x and y coordinates. The actionsCount variable is also incremented by 1.
+    """
     def populateAction(self,x,y):
         """ Populate both action Maps with an actionXY Map. 
         Arguments:
@@ -164,8 +223,15 @@ class game(gym.Env):
         self.actions[self.actionsCount, 1] = y
         self.actionsCount += 1
     
+    """
+    NAME:           isValidAction
+    PARAMETERS:     self, action
+    PURPOSE:        The function checks if a given action is valid for the current game board.
+    PRECONDITION:   The function must be called by an instance of the class containing this method, and an action must be provided as an argument.
+    POSTCONDITION:  The function returns True if the action is valid for the current game board, False otherwise. An action is 
+                    considered valid if it does not swap opponent's cards and if the cards being swapped are not already flipped (have a negative value on the board). 
+    """
     def isValidAction(self, action):
-        """Checks if a given action is valid for the current board."""
         if(action >=0 and action <  42):
                 #player makes an action
                 #check if the action is valid or not
@@ -185,14 +251,18 @@ class game(gym.Env):
             return False 
         return True
 
+    """
+    NAME:           processAction
+    PARAMETERS:     self, a, b, c, d
+    PURPOSE:        The function processes an action by checking if the destination coordinates are valid and if the action already 
+                    exists in the actions map. It also populates the actions map with a new action if it doesn't already exist.
+    PRECONDITION:   The function must be called by an instance of the class containing this method. The a, b, c, and d arguments must 
+                    be integers representing valid coordinates on a 4x4 grid.
+    POSTCONDITION:  If the destination coordinates are valid and the action does not already exist in the actions map, then a new 
+                    entry is added to the actions map using the populateAction method. If the action already exists in the actions map, 
+                    then no changes are made to the maps. 
+    """
     def processAction(self,a,b,c,d):
-        """ Processes an action
-            1. checks if the destination coordinates are correct.
-            2. checks if the action already exists. Since swap(X,Y) = swap(Y,X)
-        Arguments:
-            a,b     -> Co ordinates of a position on the 4x4 Grid.
-            c,d     -> Co ordinates of a position on the 4x4 Grid.
-        """
         if self.isValid(c) and self.isValid(d):
             x, y = 4 * a + b, 4 * c + d
             if( x > y):
@@ -200,24 +270,33 @@ class game(gym.Env):
             if(self.actionsXY[x,y] == -1):
                 self.populateAction(x,y)
 
+    """
+    NAME:           reset
+    PARAMETERS:     self
+    PURPOSE:        The function resets the game board to a fresh new game state.
+    PRECONDITION:   The function must be called by an instance of the class containing this method.
+    POSTCONDITION:  The game board is reset to a fresh new game state using the startGame method. 
+                    The board is then normalized using the normalizeBoard method and returned as output. 
+    """
     def reset(self):
-        """ Rests the board = creates a fresh new game
-        Returns:
-            the normalized Board Position.
-        """
         self.startGame()
         return self.normalizeBoard()
 
+    """
+    NAME:           step
+    PARAMETERS:     self, action
+    PURPOSE:        This function simulates one step of the game, given an action from the User/Agent, 
+                    responds with a random valid action from the opponent, and returns the next state, 
+                    reward, done?, and additional information.
+    PRECONDITION:   The function should be called after initializing the game environment with all 
+                    necessary variables and parameters. The parameter 'action' should be an integer 
+                    between 0 and 41, representing the action of swapping X and Y position.
+    POSTCONDITION:  The function updates the game board with the performed actions and returns the next 
+                    state, reward, done?, and additional information. The 'reward' and 'done' variables are 
+                    updated based on the outcome of the game, and 'info' is a dictionary containing additional 
+                    information about the current state of the game.
+    """
     def step(self, action):
-        """
-        Performs an action from the User/Agent and 
-        responds with a random action valid action from the opponent 
-        Arguments:
-            action -> An Integer representing an action of swapping X and Y position.
-                      such that actions[action] = (X,Y)
-        Return: 
-            next_state, reward, done?, additional_info
-        """
         # Additional Information        
         info = {}
         info['random_action'] = -1
@@ -388,12 +467,29 @@ class game(gym.Env):
 
         return False
         
+    """
+    NAME:           TestcheckIfSuiteWon
+    PARAMETERS:     board, list of integers; aces, dictionary; suite, integer
+    PURPOSE:        Helper method to test if a suite won the game or not by calling the checkIfSuiteWon function
+    PRECONDITION:   The board should be a list of integers with length 16, aces should be a dictionary with 
+                    keys 1-4 and values in the range 0-15, and suite should be an integer in the range 1-4. The 
+                    checkIfSuiteWon function should also be defined.
+    POSTCONDITION:  Prints True if the suite won the game, False otherwise. The board and aces instance variables of 
+                    the class may be changed, but are reset after the function call.
+    """
     def TestcheckIfSuiteWon(self, board, aces, suite):
         """ Helper method to test if a suite won the game or not """
         self.board = board
         self.aces = aces
         print(self.checkIfSuiteWon(suite))
     
+    """
+    NAME:           render
+    PARAMETERS:     self
+    PURPOSE:        The function prints the current game state to the console
+    PRECONDITION:   The game state should be initialized and valid
+    POSTCONDITION:  The game state is printed to the console in a formatted manner
+    """
     def render(self):
         """ Renders the game on to the Standard Output console """
         print()
@@ -409,6 +505,17 @@ class game(gym.Env):
         print("time = ", self.time)
 
     # Network for Agent Iron.
+    """
+    NAME:           create_q_model
+    PARAMETERS:     state_shape - tuple representing the shape of the input state to the neural network
+                    total_actions - integer representing the total number of actions available to the agent
+    PURPOSE:        Creates a deep neural network model for the Q-learning algorithm used by Agent Iron to select actions.
+    PRECONDITION:   state_shape must be a tuple representing the shape of the input state to the neural network.
+                    total_actions must be an integer representing the total number of actions available to the agent.
+    POSTCONDITION:  Returns a Keras model object representing the Q-network with input shape state_shape and output shape (total_actions,).
+                    The model architecture consists of an input layer, two hidden layers of 40 neurons each with ReLU activation, and an output 
+                    layer of total_actions neurons with linear activation.
+    """
     def create_q_model(self, state_shape, total_actions):
         # input layer
         inputs = layers.Input(shape=state_shape)
@@ -422,6 +529,15 @@ class game(gym.Env):
 
         return keras.Model(inputs=inputs, outputs=action)
 
+"""
+NAME:           main
+PARAMETERS:     None
+PURPOSE:        The function serves as the main entry point of the program and runs the game loop where 
+                the user interacts with the game and receives feedback
+POSTCONDITION:  The function runs the game loop and allows the user to interact with the game by entering an 
+                action, rendering the game, and displaying the reward and computer's action. The loop continues 
+                until the game is finished or the user chooses to exit.
+"""
 def main():
     env = game('./assistance_model/model.h5')
     print()
