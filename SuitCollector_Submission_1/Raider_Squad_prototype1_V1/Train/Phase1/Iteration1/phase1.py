@@ -370,6 +370,7 @@ def main():
         # Set the predicted action as the action with the maximum value from the q_table
         predicted_action = numpy.argmax(q_table)
         print("The optimal action would be to pick", suit_names[predicted_action]) # Print the picked action...
+        print("Card numbers: ", suit_to_cards_mapping[predicted_action])
         # print("Number of Q-table updates: ", updates_count)
 
 # Launcher of the main function.
