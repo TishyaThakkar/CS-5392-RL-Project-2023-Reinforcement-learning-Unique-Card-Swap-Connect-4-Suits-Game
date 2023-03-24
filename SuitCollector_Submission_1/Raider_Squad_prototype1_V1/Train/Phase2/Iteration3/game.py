@@ -409,7 +409,7 @@ class game(gym.Env):
         print("time = ", self.time)
 
     # Network for Agent Gold.
-    def create_q_model(state_shape, total_actions):
+    def create_q_model(self,state_shape, total_actions):
         # input layer
         inputs = layers.Input(shape=state_shape)
 
