@@ -564,7 +564,8 @@ def create_q_model(state_shape, total_actions):
     # 24 filters , 2x2 size.
     #initializer1 = tf.keras.initializers.RandomNormal(mean=0.5, stddev=0.4)
     layer1 =  layers.Conv2D(64, 2, strides=1, activation="relu")(layer0)
-    layer2 =  layers.Conv2D(64, 2, strides=1, activation="relu")(layer1)
+    layer2 =  layers.Conv2D(42, 3, strides=1, activation="relu")(layer0)
+    layer3 =  layers.Conv2D(32, 4, strides=1, activation="relu")(layer0)
     #layer12 = layers.Conv2D(16, 2, strides=1, activation="relu")(layer1)
     #layer13 = layers.Conv2D(16, 2, strides=1, activation="relu")(layerl2) 
     #layer13 = layers.Conv2D(12, 2, strides=1, activation="relu")(layer12)
@@ -573,7 +574,7 @@ def create_q_model(state_shape, total_actions):
     #layer2 = layers.Conv2D(32, 3, strides=1, activation="relu")(layer0)
     #layer3 = layers.Conv2D(40, 4, strides=1, activation="relu")(layer0)
     #layer3 = layers.Conv2D(128, 2, strides=1, activation="relu")(layer2)
-    layer3 = layers.Concatenate()([layers.Flatten()(layer1),layers.Flatten()(layer2)])
+    layer3 = layers.Concatenate()([layers.Flatten()(layer1),layers.Flatten()(layer2),layers.Flatten()(layer3)])
     #layer2 = layers.Flatten()(layer1)
     # Hidden layers
     #layer5 = layers.Dense(333, activation="relu" )(layer4)
@@ -582,7 +583,7 @@ def create_q_model(state_shape, total_actions):
     #layer7 = layers.Dense(77, activation="relu", kernel_initializer=initializer2)(layer6)
     #layer6 = layers.Dense(300, activation="relu")(layer5)
     #layer6 = layers.Dense(207, activation="relu")(layer5)
-    layer4 = layers.Dense(237, activation="relu")(layer3)
+    layer4 = layers.Dense(337, activation="relu")(layer3)
     #layer4 = layers.Dense(45, activation="relu")(layer3)   
     #layer5 = layers.Dense(10, activation="relu")(layer4)
 
