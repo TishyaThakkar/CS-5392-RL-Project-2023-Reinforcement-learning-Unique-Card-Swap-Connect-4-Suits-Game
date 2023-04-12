@@ -8,6 +8,7 @@
     <title>Suit Collector</title>
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/toastr.min.css" />
 
 </head>
 
@@ -21,16 +22,17 @@
                 <button id="bNewGame"type="button" class="btn btn-primary">New Game</button>
                 <br><br>
                 <label>Play With :</label>
-                <select class="form-select" aria-label="Default select example">
+                <select id="selAgent" class="form-select" aria-label="Default select example">
                     <option value="0" selected>Agent Rock (Random Agent)</option>
                     <option value="1">Agent Iron</option>
                     <option value="2">Agemt Gold</option>
-                    <option value="0">Agemt Diamond (comming soon)</option>
+                    <option value="3">Agemt Diamond 1</option>
+                    <option value="4">Agemt Diamond 2</option>
                 </select>
                 <br><br>
                 <label>Your Suit: </label>
-                <select class="form-select" aria-label="Default select example">
-                    <option value="0">Let The Agent go first</option>
+                <select id="selUserSuit" class="form-select" aria-label="Default select example">
+                    <option value="0">Let AI Pick Suit first</option>
                     <option value="1" selected>Clubs</option>
                     <option value="2">Hearts</option>
                     <option value="3">Spades</option>
@@ -38,17 +40,18 @@
                 </select>
                 <br><br>
                 <label>Agents Suit: </label>
-                <select class="form-select" aria-label="Default select example">
+                <select id="selAgentSuit" class="form-select" aria-label="Default select example">
+                    <option value="0">Let AI Pick Suit</option>
                     <option value="1">Clubs</option>
                     <option value="2" selected>Hearts</option>
                     <option value="3">Spades</option>
                     <option value="4">Diamonds</option>
                 </select>
-                <button type="button" class="btn btn-light" disabled alt="Work in Progress Comming soon..">Let AI Choose</button>
+                <!-- <button type="button" id="btLetAIChoose" class="btn btn-link">Let AI Choose</button> -->
                 <br><br>
-                <label>Suggestion: <span id="act">Select Two Cards</span></label>
+                <label><span id="act">Select Two Cards to swap and click play or leave empty and clikc play to skip your turn.</span></label>
                 <br>
-                <button type="button" class="btn btn-success btn-lg">Play</button>
+                <button type="button" id="btPlayTurn" class="btn btn-success btn-lg">Play Turn</button>
                 <br><br>
             </div>
             <div class="board col">
@@ -165,6 +168,7 @@
 </body>
 <script src="js/jquery-3.6.4.min.js"></script>
 <script src="js/bootstrap.bundle.js"></script>
+<script src="js/toastr.min.js"></script>
 <script src="js/main.js"></script>
 
 </html>
