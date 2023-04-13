@@ -481,7 +481,7 @@ class game():
         data['board'] = None
         data['processSuits'] = True
         if message['playAgainst'] == 0:
-            data['suits'] = str(random.randint(1, 4))
+            data['suit'] = str(random.randint(1, 4))
             return data
 
         else:
