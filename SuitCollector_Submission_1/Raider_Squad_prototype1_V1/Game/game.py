@@ -493,7 +493,7 @@ class game():
                 print("Choose which method to use:")
                 print("1. Q Learning")
                 print("2. Phase 2 Gold Model")
-                m = 1
+                m = 2
                 if m == 1:
                     # Some Code
                     suits = [1, 2, 3, 4]
@@ -536,7 +536,7 @@ class game():
                 print("Choose which method to use:")
                 print("1. Q Learning")
                 print("2. Phase 2 Gold Model")
-                m = 1
+                m = 2
                 if m == 1:
                     # Some code
                     return None
