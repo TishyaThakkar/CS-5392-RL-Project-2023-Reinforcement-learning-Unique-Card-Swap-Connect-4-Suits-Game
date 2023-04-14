@@ -295,16 +295,22 @@ class game():
         """ Create a Q model for Agent Diamond 1"""
         # input layer
         inputs = layers.Input(shape=state_shape)
+        layer0 = layers.Reshape((-1,4, 4,1), input_shape=state_shape)(inputs)
 
+        # 24 filters , 2x2 size.
+        #initializer1 = tf.keras.initializers.RandomNormal(mean=0.5, stddev=0.4)
+        layer1 =  layers.Conv2D(64, 2, strides=1, activation="relu")(layer0)
+        layer2 = layers.Flatten()(layer1)
         # Hidden layers
-        layer1 = layers.Dense(500, activation="relu")(inputs)
-        layer2 = layers.Dense(250, activation="relu")(layer1)
-
+        
+        layer3 = layers.Dense(200, activation="relu")(layer2)
+        
         # output layer    
-        action = layers.Dense(total_actions, activation="linear")(layer2)
+        action = layers.Dense(total_actions, activation="linear")(layer3)
+
 
         model = keras.Model(inputs=inputs, outputs=action)
-        model.load_weights('./models/model-gold.h5')
+        model.load_weights('./models/model-diamond1.h5')
         return model
 
 
@@ -442,7 +448,10 @@ class game():
                             # permutation of suits is chosen...
                             rewards.append(self.getMaxQValues(agent_id-1))
                     # Since user will pick the best option for him always
-                    curernt_best_reward = min(rewards)
+                    if(userSuit == 0):
+                        curernt_best_reward = min(rewards)
+                    else:
+                        curernt_best_reward = max(rewards)
                     if(curernt_best_reward > best_QValue):
                         best_suit = i
                         best_QValue = curernt_best_reward;
