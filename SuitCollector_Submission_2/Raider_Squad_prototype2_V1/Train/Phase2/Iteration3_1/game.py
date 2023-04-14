@@ -35,7 +35,7 @@ class game(gym.Env):
     POSTCONDITION:  Game object is initialized.
     """
     def __init__(self, model_path):
-                """This constructor sets up the Game Object.
+        """This constructor sets up the Game Object.
             Arguments:
                 model_path: refers to the path to the weights of Agent Gold.
         """
