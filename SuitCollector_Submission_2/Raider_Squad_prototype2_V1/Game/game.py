@@ -18,10 +18,22 @@ import os.path
 import phase1
 from phase1 import *
 
-
+"""
+NAME:       game
+PURPOSE:    This class is used to create a Suit Collector environment for the Suit Collector game.
+"""
 # Suite Collector Game Class File
 class game():
 
+    """
+    NAME:           init
+    PARAMETERS:     self
+    PURPOSE:        This constructor sets up the Game Object with all necessary 
+                    properties and initializes the board.
+    PRECONDITION:   This function should be called to initialize the Game object 
+                    before starting any game.
+    POSTCONDITION:  Game object is initialized.
+    """
     def __init__(self):
         # Setting up the Game
         # Pieces - Format AB, A-> Suite , B-> Number
@@ -77,7 +89,14 @@ class game():
                 self.processAction(a,b,c,d)
         
         self.models = [self.create_q_model_iron((16,),42), self.create_q_model_gold((16,),42), self.create_q_model_diamond1((16,),42), self.create_q_model_diamond2((16,),42)]
-        
+
+    
+    """
+    NAME:           convertToPhase2Board
+    PARAMETERS:     self, board, suite
+    PURPOSE:        This function converts the board to phase 2 board.
+    POSTCONDITION: the board is created with phase 2 board.
+    """    
     def convertToPhase2Board(self, board, suite):
         #Converts a board to phase2 Board
         userSuit = suite[0]
@@ -92,7 +111,12 @@ class game():
             if suit == agentSuit:
                 self.board[i] = value
 
-    
+    """
+    NAME:           trackAces
+    PARAMETERS:     self
+    PURPOSE:        This function tracks aces in the board and is useful to know if any suite has won the game.
+    POSTCONDITION: The ace's location on the board is set.
+    """    
     def trackAces(self):
         # Track Aces in the board, Format - A1 | A = {1,2,3,4}
         self.aces = np.full([3],-1)
@@ -102,28 +126,72 @@ class game():
                 self.aces[self.board[i]] = i
     
    
-    # Checks if a co-ordinate is valid or not
+    """
+    NAME:           isValid
+    PARAMETERS:     Self; x - an integer representing an X or Y position on the grid
+    PURPOSE:        Checks if a coordinate is valid or not within the 4x4 grid.
+    PRECONDITION:   The input parameter x must be an integer.
+    POSTCONDITION:  Returns True if the input x is within the range of 0 to 3, 
+                    False otherwise. No variables are changed. The function only 
+                    returns a boolean value.
+    """
     def isValid(self, x):
         if x >=0 and x < 4:
             return True
         return False
 
+    """
+    NAME:           normalizeBoard
+    PARAMETERS:     self
+    PURPOSE:        The function normalizes the data on the board to values between [-1,1]
+    PRECONDITION:   The function can be called after the board has been initialized 
+                    with values between 0 and 15.
+    POSTCONDITION:  The function returns a normalized board where all values have been 
+                    divided by 4 to be within the range of [-1,1].
+    """
     def normalizeBoard(self):
         return (self.board / 4)
 
+    """
+    NAME:           normalizeBoardForAssistanceModel
+    PARAMETERS:     self
+    PURPOSE:        The function normalizes the data on the board to values between [-1,1] for agent.
+    PRECONDITION:   The function can be called after the board has been initialized 
+                    with values between 0 and 15.
+    POSTCONDITION:  The function returns a normalized board where all values have been 
+                    divided by 4 to be within the range of [-1,1].
+    """
     def normalizeBoardForAssistanceModel(self):
         return (self.board / -4)
 
-    # Populate both action Maps with an action.
+    """
+    NAME:           processAction
+    PARAMETERS:     self, a, b, c, d
+    PURPOSE:        The function processes an action by checking if the destination coordinates are valid and if the action already 
+                    exists in the actions map. It also populates the actions map with a new action if it doesn't already exist.
+    PRECONDITION:   The function must be called by an instance of the class containing this method. The a, b, c, and d arguments must 
+                    be integers representing valid coordinates on a 4x4 grid.
+    POSTCONDITION:  If the destination coordinates are valid and the action does not already exist in the actions map, then a new 
+                    entry is added to the actions map using the populateAction method. If the action already exists in the actions map, 
+                    then no changes are made to the maps. 
+    """
     def populateAction(self,x,y):
         self.actionsXY[x,y] = self.actionsCount
         self.actions[self.actionsCount, 0] = x
         self.actions[self.actionsCount, 1] = y
         self.actionsCount += 1
 
-    # Processes a action
-    #   checks if the destination coordinates are correct.
-    #   checks if the action already exists. swap(X,Y) = swap(Y,X)
+    """
+    NAME:           processAction
+    PARAMETERS:     self, a, b, c, d
+    PURPOSE:        The function processes an action by checking if the destination coordinates are valid and if the action already 
+                    exists in the actions map. It also populates the actions map with a new action if it doesn't already exist.
+    PRECONDITION:   The function must be called by an instance of the class containing this method. The a, b, c, and d arguments must 
+                    be integers representing valid coordinates on a 4x4 grid.
+    POSTCONDITION:  If the destination coordinates are valid and the action does not already exist in the actions map, then a new 
+                    entry is added to the actions map using the populateAction method. If the action already exists in the actions map, 
+                    then no changes are made to the maps. 
+    """
     def processAction(self,a,b,c,d):
         if self.isValid(c) and self.isValid(d):
             x, y = 4 * a + b, 4 * c + d

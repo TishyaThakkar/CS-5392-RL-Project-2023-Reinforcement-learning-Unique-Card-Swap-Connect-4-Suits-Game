@@ -1,6 +1,6 @@
 """
 A Trainer Python file to Train a Convoluted Deep Neural Network with Temporal Difference Q-Learning and DQN
-to play Suit Collector Game For Phase II, Iteration 2.The Aim is To Train Deep Neural Network Agent 
+to play Suit Collector Game For Phase II, Iteration 3.The Aim is To Train Deep Neural Network Agent 
 that learns to play Suit Collector and wins 1000x10 Games against a Random Playing Agent.
 This version is used to Train The Neural Network Agent which will be referred to as 'Diamond1'. 
 """
@@ -53,7 +53,6 @@ logjsonname = 'log.json'
 
 # Epsilon greedy parameter
 # min and max are very low because of very high illegal rate of the game.
-# 20 games 0.1 -> 0.0 Max is 3100 * 20 Min is 15 * 20 avg is  31150 31012.5
 min_epsilon = 0.05
 #min_epsilon = 0.005
 max_epsilon = 0.25
@@ -110,10 +109,6 @@ episode_count = 0
 
 # Using huber loss for stability
 loss_function = keras.losses.Huber()
-#loss_function = keras.losses.MeanSquaredError(reduction="auto", name="mean_squared_error")
-# Not sure what's happening here...
-# will need to read more about this though.
-# read about it, best of RMS and other Absoulte loss funciton. 
 
 # Optimizer - Adam Optimizer
 optimizer = keras.optimizers.Adam(learning_rate=0.00025, clipnorm=1.0)
@@ -132,7 +127,7 @@ save_weights_after = 600
 
 def main():
     """ Trains the Neural Network Agent """
-    # Initialize the Game Environment with Gold Iron.
+    # Initialize the Game Environment with Gold Agent.
     env = game('./assistance_model/model.h5')
     
     #For Logs
@@ -214,10 +209,7 @@ def main():
 
             # Play 'update_after_games' number of games and Store the S,A,R,S'
             while(update_after_games != good_games):
-
                 # Start a new Game.
-                #state = np.array(env.reset())
-                
                 state = env.reset()
                 episode_reward = 0
                 done = False
@@ -275,7 +267,7 @@ def main():
                                 action = np.random.choice(total_actions)
                                 times_to_try = times_to_try + 1
                     
-                    # epsilon greedy code changes
+                    # epsilon greedy - decay 
                     epsilon -= epsilon_decay_factor
                     epsilon = max(min_epsilon , epsilon)
 
@@ -472,6 +464,9 @@ def main():
 
 # Networks
 def create_q_model(state_shape, total_actions):
+    """
+    Create Convolution Q Network for Diamond 1 
+    """
     # input layer
     inputs = layers.Input(shape=state_shape)
     layer0 = layers.Reshape((-1,4, 4,1), input_shape=state_shape)(inputs)
