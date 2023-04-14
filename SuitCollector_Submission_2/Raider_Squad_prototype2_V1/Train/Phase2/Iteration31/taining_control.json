@@ -1,5 +1,0 @@
-{
-    "stop_training" : 1,
-    "start_epsilon": 0.01,
-    "games_without_epsilon": 17
-}
