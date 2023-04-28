@@ -485,7 +485,7 @@ class game():
                 answer = phase1.main(True, message['board'])
             else:
                 user_suit = s[0]
-                print(user_suit)
+                # print(user_suit)
                 answer = phase1.main(True, message['board'], user_suit-1)
                 # Converting the suit ID from phase1.py terminology to the UI terminology. Storing the suit ID in suit attribute of data object and returning
                 # the data object.
@@ -499,7 +499,7 @@ class game():
                 data['suit'] = '4'
             return data
 
-        return data
+        # return data
         # Agent already picked a Suit, 
         if agentSuit != 0:
             data['msg_e'] = 'Please pick your suit.'
