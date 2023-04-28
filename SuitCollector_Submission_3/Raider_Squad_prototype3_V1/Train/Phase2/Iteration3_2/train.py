@@ -454,15 +454,15 @@ def main():
             total_draws_bp = total_draws
             total_wins_bp = total_wins
             total_loss_bp = total_loss
-        # Time to Update the Target Model
-        # update the the target network with new weights
-        if(total_games%update_target_network == 0):
-            model_target.set_weights(model.get_weights())
+            # Time to Update the Target Model
+            # update the the target network with new weights
+            if(total_games%update_target_network == 0):
+                model_target.set_weights(model.get_weights())
 
 
-        #saving the model
-        if total_games%save_weights_after == 0:
-            model.save_weights(saved_weights_dir + file_name + '_' +str(total_games)+ '_' + str(datetime.now().strftime(DTTM_FORMAT)) + file_extension)
+            #saving the model
+            if total_games%save_weights_after == 0:
+                model.save_weights(saved_weights_dir + file_name + '_' +str(total_games)+ '_' + str(datetime.now().strftime(DTTM_FORMAT)) + file_extension)
 
 # Networks
 def create_q_model(state_shape, total_actions):
