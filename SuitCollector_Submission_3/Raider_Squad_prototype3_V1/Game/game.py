@@ -405,26 +405,33 @@ class game():
         return model
     
     def create_q_model_obsidian(self, state_shape, total_actions):
+        """
+        Create Deep Convolution Q Network for Obsidian Stone
+        """
         # input layer
         inputs = layers.Input(shape=state_shape)
 
         layer0 = layers.Reshape((-1,4, 4,1), input_shape=state_shape)(inputs)
 
         # 20 ways to win for each player , two players so 40 ways. 14 actions approx to win each way therefore 40 * 14 = 560 
-        layer1 =  layers.Conv2D(560, 4, strides=1, activation="relu")(layer0)
+        #layer1 =  layers.Conv2D(560, 4, strides=1, activation="relu")(layer0)
         
-        # 3x3 for each cell all 8 actions there are 16 cells so in total 8 * 16 = 128 filters
-        layer2 =  layers.Conv2D(128, 3, strides=1, activation="relu")(layer0)
+        # 3x3 Grid,
+        # 20 ways to win in a 3x3 world with the same rules each way to win has 3 locations in total.
+        # 12 actons 
+        # 20 * 12 = 240
+        layer2 =  layers.Conv2D(240, 3, strides=1, activation="relu")(layer0)
         
         # 12 ways to swap
-        layer3 =  layers.Concatenate()([layers.Flatten()(layer1),layers.Flatten()(layer2)])
+        layer3 =  layers.Concatenate()([layers.Flatten()(layer2)])
         
 
-        layer4 = layers.Dense(1000, activation="relu")(layer3)
-        layer5 = layers.Dense(80, activation="relu")(layer4)
+        layer4 = layers.Dense(500, activation="relu")(layer3)
+        layer5 = layers.Dense(300, activation="relu")(layer4)
         
         # output layer    
         action = layers.Dense(total_actions, activation="linear")(layer5)
+
 
         model = keras.Model(inputs=inputs, outputs=action)
         model.load_weights('./models/model-obsidian.h5')
