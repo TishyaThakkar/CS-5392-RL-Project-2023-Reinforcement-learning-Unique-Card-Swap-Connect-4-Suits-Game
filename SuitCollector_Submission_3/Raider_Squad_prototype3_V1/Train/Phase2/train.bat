@@ -9,6 +9,7 @@ echo 1. Train Agent Iron
 echo 2. Train Agent Gold
 echo 3. Train Agent Diamond1
 echo 4. Train Agent Diamond2
+echo 5. Train Agent Obsidian
 
 SET /P AGENT=Choose a model to train(1,2,3,4): 
 
@@ -33,6 +34,12 @@ if %AGENT% == 3 (
 
 if %AGENT% == 4 (
   cd .\Iteration3_2\
+  call .\train.bat
+  exit /B
+)
+
+if %AGENT% == 5 (
+  cd .\Iteration4\
   call .\train.bat
   exit /B
 )
