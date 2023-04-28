@@ -439,7 +439,7 @@ class game():
         
     def process_request(self, message):
         print(message)
-        if message['suits'][0] == 0 or message['suits'][1] == 0:
+        if message['suits'][0] == 0 or message['suits'][1] == 0 or message['suits'][1] == 5:
             return self.processSuits(message)
         else:
             return self.processPlay(message)
@@ -454,7 +454,7 @@ class game():
                   for User's suit and Agent's suit and hit "Play Turn". After that, the server.py will call the method process_request from game.py which will 
                   call this method if atleast one of the suit is not picked. 
     POSTCONDITION: This method will return a data object which has attributes such as board, processSuits, and suit. This returns the suit that is picked by the 
-                   Gold agent model. Return value is sent back to process_request method.
+                   Gold agent model or by the phase1.py file logic. Return value is sent back to process_request method.
     '''
     def processSuits(self, message):
         userSuit = message['suits'][0]
@@ -465,6 +465,54 @@ class game():
         data = {}
         data['board'] = None
         data['processSuits'] = True
+
+        print(message['suits'])
+        # We have two Algorithms to choose from:
+        # 1. Q Learning
+        # 2. Using Phase 2 Models
+
+        # Code for Q-Learning ...
+        s = message['suits']
+        print(s)
+        if s[1] == 5:
+            suits = [1, 2, 3, 4]
+            suits_to_names = ['Clubs', 'Hearts', 'Spades', 'Diamonds']
+            # Suits are coded as 1, 2, 3, 4 for Clubs, Hearts, Spades, and Diamonds
+            # print(s[0])
+            if s[0] == 0:
+                # Call the main procedure from phase1.py file and send the current board information over there with a flag variable which indicates that we
+                # already have a board present. The return variable answer will have the index of the suit to be picked in the phase.py terminology.
+                answer = phase1.main(True, message['board'])
+            else:
+                user_suit = s[0]
+                print(user_suit)
+                answer = phase1.main(True, message['board'], user_suit-1)
+                # Converting the suit ID from phase1.py terminology to the UI terminology. Storing the suit ID in suit attribute of data object and returning
+                # the data object.
+            if answer == 0:
+                data['suit'] = '3'
+            elif answer == 1:
+                data['suit'] = '2'
+            elif answer == 2:
+                data['suit'] = '1'
+            else:
+                data['suit'] = '4'
+            return data
+
+        return data
+        # Agent already picked a Suit, 
+        if agentSuit != 0:
+            data['msg_e'] = 'Please pick your suit.'
+            return data
+        
+        # User is playing against Random Agent
+        if agent_id == 0:
+            agentSuit = random.randint(1, 4)
+            while agentSuit == userSuit:
+                agentSuit = random.randint(1, 4)
+
+            data['suit'] = str(agentSuit)
+            return data
 
         # Agent already picked a Suit, 
         if agentSuit != 0:
@@ -482,34 +530,6 @@ class game():
             
         # If the agent playing against us is not the random agent (Rock agent), follow this flow of code
         else:
-        # We have two Algorithms to choose from:
-            # 1. Q Learning
-            # 2. Using Phase 2 Models 
-                
-            # Code for Q-Learning ... 
-            """
-            if [UI Option is Phase1 Model]:
-                # Some Code
-                # Suits are coded as 1, 2, 3, 4 for Clubs, Hearts, Spades, and Diamonds
-                suits = [1, 2, 3, 4]
-                suits_to_names = ['Clubs', 'Hearts', 'Spades', 'Diamonds']
-                # Call the main procedure from phase1.py file and send the current board information over there with a flag variable which indicates that we 
-                # already have a board present. The return variable answer will have the index of the suit to be picked in the phase.py terminology.
-                answer = phase1.main(True, message['board'])
-                # Converting the suit ID from phase1.py terminology to the UI terminology. Storing the suit ID in suit attribute of data object and returning 
-                # the data object.
-                if answer == 0:
-                    data['suit'] = '3'
-                elif answer == 1:
-                    data['suit'] = '2'
-                elif answer == 2:
-                    data['suit'] = '1'
-                else:
-                    data['suit'] = '4'
-                return data
-            else:
-                
-            """
             # Code using Phase 2 Models
             
             # There are total 12 combination of choices for the user and agent's suit choices given that both the suits are not chosen yet.
